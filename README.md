@@ -21,6 +21,7 @@
     <a href="#tecnologias">Tecnologias</a> •
     <a href="#como-executar">Como Executar</a> •
     <a href="#estrutura">Estrutura</a> •
+    <a href="docs/SECURITY.md">🔒 Segurança</a> •
     <a href="#equipe">Equipe</a>
   </p>
 </div>
@@ -165,6 +166,21 @@ EventFlow/
 │   └── package.json
 └── README.md
 ```
+
+---
+
+## Segurança
+
+A documentação completa de segurança do sistema está em [`docs/SECURITY.md`](docs/SECURITY.md), cobrindo:
+
+- Autenticação JWT e gestão de tokens
+- Controle de acesso por perfil (RBAC)
+- Proteção contra SQL Injection
+- Armazenamento seguro de senhas (BCrypt)
+- Gestão de segredos e variáveis de ambiente
+- Validação no servidor
+- Logs de auditoria
+- Vulnerabilidades conhecidas e plano de resposta a incidente
 
 ---
 

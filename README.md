@@ -40,28 +40,28 @@ O **EventFlow** é uma plataforma web para gestão de eventos educacionais — m
 <details>
 <summary><strong>📅 Gestão de Eventos e Turmas</strong></summary>
 
-- [ ] Cadastro de eventos com título, descrição, data, local e carga horária
-- [ ] Criação de turmas vinculadas a um evento, com limite de vagas
-- [ ] Controle de status: aberta, encerrada ou cancelada
-- [ ] Visualização pública da grade de eventos disponíveis
+- [X] Cadastro de eventos com título, descrição, data, local e carga horária
+- [X] Criação de turmas vinculadas a um evento, com limite de vagas
+- [X] Controle de status: aberta, encerrada ou cancelada
+- [] Visualização pública da grade de eventos disponíveis
 
 </details>
 
 <details>
 <summary><strong>📝 Inscrições</strong></summary>
 
-- [ ] Inscrição de alunos com validação de vagas disponíveis
-- [ ] Cancelamento dentro do prazo configurado
-- [ ] Prevenção de inscrições duplicadas em turmas conflitantes
-- [ ] Lista de espera automática quando as vagas esgotam
+- [X] Inscrição de alunos com validação de vagas disponíveis
+- [X] Cancelamento dentro do prazo configurado
+- [X] Prevenção de inscrições duplicadas em turmas conflitantes
+- [X] Lista de espera automática quando as vagas esgotam
 
 </details>
 
 <details>
 <summary><strong>✅ Controle de Presença</strong></summary>
 
-- [ ] Registro de presença por aula ou sessão
-- [ ] Edição de registros pelo professor responsável
+- [X] Registro de presença por aula ou sessão
+- [X] Edição de registros pelo professor responsável
 - [ ] Cálculo automático de frequência por turma
 - [ ] Exportação de lista de presença
 
@@ -70,17 +70,17 @@ O **EventFlow** é uma plataforma web para gestão de eventos educacionais — m
 <details>
 <summary><strong>📊 Relatórios e Dashboards</strong></summary>
 
-- [ ] Dashboard com visão geral de eventos e inscrições (Admin)
+- [X] Dashboard com visão geral de eventos e inscrições (Admin)
 - [ ] Relatório de presença por turma e por aluno
-- [ ] Histórico de participação acessível ao próprio aluno
+- [X] Histórico de participação acessível ao próprio aluno
 
 </details>
 
 <details>
 <summary><strong>🔒 Autenticação e Segurança</strong></summary>
 
-- [ ] Cadastro e login com autenticação via JWT
-- [ ] Controle de acesso por perfil (Admin, Professor, Aluno)
+- [X] Cadastro e login com autenticação via JWT
+- [X] Controle de acesso por perfil (Admin, Professor, Aluno)
 - [ ] Proteção de rotas no frontend e no backend
 
 </details>

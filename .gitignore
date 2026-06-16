@@ -1,0 +1,40 @@
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Arquivos de banco de dados H2 (desenvolvimento)
+*.mv.db
+*.trace.db
+*.lock.db
+
+# Backend (Maven)
+backend/target/
+backend/.classpath
+backend/.project
+backend/.settings/
+backend/bin/
+
+# Frontend (Node)
+frontend/node_modules/
+frontend/dist/
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+
+# Postman
+postman/*.json.bak
+
+# Dependências do Maven
+*.jar
+!.mvn/wrapper/maven-wrapper.jar
+
+# OS
+.env
+.DS_Store
+*.log

@@ -1,0 +1,408 @@
+{
+  "info": {
+    "name": "EventFlow API",
+    "description": "Collection para testar todos os endpoints da API EventFlow.\n\nCredenciais de teste:\n- Admin: admin@eventflow.dev / Admin@1234\n- Professor: professor@eventflow.dev / Prof@1234\n- Aluno: aluno@eventflow.dev / Aluno@1234",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "description": "Autenticação: registro, login, refresh e logout",
+      "item": [
+        {
+          "name": "Register - Novo Aluno",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/auth/register", "host": ["{{base_url}}"], "path": ["auth", "register"] },
+            "body": { "mode": "raw", "raw": "{\n  \"nome\": \"Novo Aluno\",\n  \"email\": \"novo@eventflow.dev\",\n  \"senha\": \"Senha@1234\"\n}" },
+            "description": "Registra um novo usuário com papel ALUNO. Acesso: Público."
+          }
+        },
+        {
+          "name": "Login - Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  var json = pm.response.json();",
+                  "  pm.environment.set('access_token', json.accessToken);",
+                  "  pm.environment.set('refresh_token', json.refreshToken);",
+                  "  pm.test('Login bem-sucedido', function() {",
+                  "    pm.expect(json.accessToken).to.be.a('string');",
+                  "  });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/auth/login", "host": ["{{base_url}}"], "path": ["auth", "login"] },
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"admin@eventflow.dev\",\n  \"senha\": \"Admin@1234\"\n}" },
+            "description": "Login como Admin. O script de test salva access_token e refresh_token automaticamente nas variáveis de ambiente."
+          }
+        },
+        {
+          "name": "Login - Professor",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  var json = pm.response.json();",
+                  "  pm.environment.set('access_token', json.accessToken);",
+                  "  pm.environment.set('refresh_token', json.refreshToken);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/auth/login", "host": ["{{base_url}}"], "path": ["auth", "login"] },
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"professor@eventflow.dev\",\n  \"senha\": \"Prof@1234\"\n}" },
+            "description": "Login como Professor. Salva tokens automaticamente."
+          }
+        },
+        {
+          "name": "Login - Aluno",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  var json = pm.response.json();",
+                  "  pm.environment.set('access_token', json.accessToken);",
+                  "  pm.environment.set('refresh_token', json.refreshToken);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/auth/login", "host": ["{{base_url}}"], "path": ["auth", "login"] },
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"aluno@eventflow.dev\",\n  \"senha\": \"Aluno@1234\"\n}" },
+            "description": "Login como Aluno. Salva tokens automaticamente."
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  var json = pm.response.json();",
+                  "  pm.environment.set('access_token', json.accessToken);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/auth/refresh", "host": ["{{base_url}}"], "path": ["auth", "refresh"] },
+            "body": { "mode": "raw", "raw": "{\n  \"refreshToken\": \"{{refresh_token}}\"\n}" },
+            "description": "Renova o access token usando o refresh token. Acesso: Público. Atualiza access_token automaticamente."
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": { "raw": "{{base_url}}/auth/logout", "host": ["{{base_url}}"], "path": ["auth", "logout"] },
+            "description": "Revoga refresh token. Acesso: Autenticado."
+          }
+        },
+        {
+          "name": "❌ Login - Credenciais Inválidas (401)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/auth/login", "host": ["{{base_url}}"], "path": ["auth", "login"] },
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"admin@eventflow.dev\",\n  \"senha\": \"SenhaErrada\"\n}" },
+            "description": "Caso de erro: credenciais inválidas. Esperado: 401."
+          }
+        },
+        {
+          "name": "❌ Register - Payload Inválido (400)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/auth/register", "host": ["{{base_url}}"], "path": ["auth", "register"] },
+            "body": { "mode": "raw", "raw": "{\n  \"nome\": \"\",\n  \"email\": \"invalido\",\n  \"senha\": \"123\"\n}" },
+            "description": "Caso de erro: campos inválidos. Esperado: 400 com detalhes de validação."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Eventos",
+      "description": "CRUD de eventos acadêmicos",
+      "item": [
+        {
+          "name": "Criar Evento",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": { "raw": "{{base_url}}/eventos", "host": ["{{base_url}}"], "path": ["eventos"] },
+            "body": { "mode": "raw", "raw": "{\n  \"titulo\": \"Hackathon 2026\",\n  \"descricao\": \"Maratona de programação\",\n  \"dataInicio\": \"2026-08-01\",\n  \"dataFim\": \"2026-08-03\",\n  \"local\": \"Centro de Convenções\",\n  \"cargaHoraria\": 24\n}" },
+            "description": "Cria um novo evento. Acesso: ADMIN."
+          }
+        },
+        {
+          "name": "Listar Eventos",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/eventos?page=0&size=10", "host": ["{{base_url}}"], "path": ["eventos"], "query": [{"key": "page", "value": "0"}, {"key": "size", "value": "10"}] },
+            "description": "Lista eventos com paginação. Acesso: Público."
+          }
+        },
+        {
+          "name": "Listar Eventos por Status",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/eventos?status=ABERTO&page=0&size=10", "host": ["{{base_url}}"], "path": ["eventos"], "query": [{"key": "status", "value": "ABERTO"}, {"key": "page", "value": "0"}, {"key": "size", "value": "10"}] },
+            "description": "Filtra eventos por status. Acesso: Público."
+          }
+        },
+        {
+          "name": "Buscar Evento por ID",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/eventos/{{evento_id}}", "host": ["{{base_url}}"], "path": ["eventos", "{{evento_id}}"] },
+            "description": "Busca evento pelo ID. Acesso: Público. Substitua {{evento_id}} por um UUID válido."
+          }
+        },
+        {
+          "name": "Editar Evento",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": { "raw": "{{base_url}}/eventos/{{evento_id}}", "host": ["{{base_url}}"], "path": ["eventos", "{{evento_id}}"] },
+            "body": { "mode": "raw", "raw": "{\n  \"titulo\": \"Hackathon 2026 - Edição Atualizada\",\n  \"descricao\": \"Maratona de programação atualizada\",\n  \"dataInicio\": \"2026-08-05\",\n  \"dataFim\": \"2026-08-07\",\n  \"local\": \"Auditório Principal\",\n  \"cargaHoraria\": 30\n}" },
+            "description": "Edita um evento existente. Acesso: ADMIN."
+          }
+        },
+        {
+          "name": "Cancelar Evento",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": { "raw": "{{base_url}}/eventos/{{evento_id}}", "host": ["{{base_url}}"], "path": ["eventos", "{{evento_id}}"] },
+            "description": "Cancela evento (soft delete). Acesso: ADMIN."
+          }
+        },
+        {
+          "name": "❌ Criar Evento - Sem Token (401)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/eventos", "host": ["{{base_url}}"], "path": ["eventos"] },
+            "body": { "mode": "raw", "raw": "{\n  \"titulo\": \"Teste\",\n  \"dataInicio\": \"2026-09-01\"\n}" },
+            "description": "Caso de erro: request sem token. Esperado: 401."
+          }
+        },
+        {
+          "name": "❌ Criar Evento - Aluno (403)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": { "raw": "{{base_url}}/eventos", "host": ["{{base_url}}"], "path": ["eventos"] },
+            "body": { "mode": "raw", "raw": "{\n  \"titulo\": \"Teste Proibido\",\n  \"dataInicio\": \"2026-09-01\"\n}" },
+            "description": "Caso de erro: aluno tentando criar evento. Faça login como Aluno antes. Esperado: 403."
+          }
+        },
+        {
+          "name": "❌ Criar Evento - Payload Inválido (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": { "raw": "{{base_url}}/eventos", "host": ["{{base_url}}"], "path": ["eventos"] },
+            "body": { "mode": "raw", "raw": "{\n  \"titulo\": \"\",\n  \"dataInicio\": null\n}" },
+            "description": "Caso de erro: campos obrigatórios faltando. Esperado: 400 com detalhes de validação."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Turmas",
+      "description": "CRUD de turmas vinculadas a eventos",
+      "item": [
+        {
+          "name": "Criar Turma",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": { "raw": "{{base_url}}/eventos/{{evento_id}}/turmas", "host": ["{{base_url}}"], "path": ["eventos", "{{evento_id}}", "turmas"] },
+            "body": { "mode": "raw", "raw": "{\n  \"nome\": \"Turma Tarde\",\n  \"dataHoraInicio\": \"2026-08-01T14:00:00\",\n  \"dataHoraFim\": \"2026-08-01T18:00:00\",\n  \"vagas\": 25,\n  \"professorId\": \"{{professor_id}}\"\n}" },
+            "description": "Cria turma vinculada a um evento. Acesso: ADMIN. Substitua {{evento_id}} e {{professor_id}}."
+          }
+        },
+        {
+          "name": "Listar Turmas do Evento",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/eventos/{{evento_id}}/turmas", "host": ["{{base_url}}"], "path": ["eventos", "{{evento_id}}", "turmas"] },
+            "description": "Lista turmas de um evento. Acesso: Público."
+          }
+        },
+        {
+          "name": "Editar Turma",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": { "raw": "{{base_url}}/turmas/{{turma_id}}", "host": ["{{base_url}}"], "path": ["turmas", "{{turma_id}}"] },
+            "body": { "mode": "raw", "raw": "{\n  \"nome\": \"Turma Tarde - Atualizada\",\n  \"dataHoraInicio\": \"2026-08-01T14:00:00\",\n  \"dataHoraFim\": \"2026-08-01T18:00:00\",\n  \"vagas\": 30,\n  \"professorId\": \"{{professor_id}}\"\n}" },
+            "description": "Edita uma turma. Acesso: ADMIN."
+          }
+        },
+        {
+          "name": "Cancelar Turma",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": { "raw": "{{base_url}}/turmas/{{turma_id}}", "host": ["{{base_url}}"], "path": ["turmas", "{{turma_id}}"] },
+            "description": "Cancela turma (soft delete). Acesso: ADMIN."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Inscrições",
+      "description": "Inscrição, cancelamento e lista de espera",
+      "item": [
+        {
+          "name": "Realizar Inscrição",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": { "raw": "{{base_url}}/turmas/{{turma_id}}/inscricoes", "host": ["{{base_url}}"], "path": ["turmas", "{{turma_id}}", "inscricoes"] },
+            "description": "Inscreve o aluno autenticado na turma. Acesso: ALUNO. Se sem vagas, vai para lista de espera."
+          }
+        },
+        {
+          "name": "Minhas Inscrições",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": { "raw": "{{base_url}}/inscricoes/minhas", "host": ["{{base_url}}"], "path": ["inscricoes", "minhas"] },
+            "description": "Lista inscrições do aluno autenticado. Acesso: ALUNO."
+          }
+        },
+        {
+          "name": "Cancelar Inscrição",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": { "raw": "{{base_url}}/inscricoes/{{inscricao_id}}", "host": ["{{base_url}}"], "path": ["inscricoes", "{{inscricao_id}}"] },
+            "description": "Cancela inscrição do aluno. Promove primeiro da fila automaticamente. Acesso: ALUNO (própria)."
+          }
+        },
+        {
+          "name": "❌ Inscrição - Conflito de Horário (409)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": { "raw": "{{base_url}}/turmas/{{turma_id_conflito}}/inscricoes", "host": ["{{base_url}}"], "path": ["turmas", "{{turma_id_conflito}}", "inscricoes"] },
+            "description": "Caso de erro: inscrição em turma com horário sobreposto a outra já inscrita. Esperado: 409."
+          }
+        },
+        {
+          "name": "❌ Inscrição Duplicada (409)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": { "raw": "{{base_url}}/turmas/{{turma_id}}/inscricoes", "host": ["{{base_url}}"], "path": ["turmas", "{{turma_id}}", "inscricoes"] },
+            "description": "Caso de erro: aluno já inscrito na mesma turma. Esperado: 409."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Presença",
+      "description": "Registro e consulta de presença por turma",
+      "item": [
+        {
+          "name": "Registrar Presença (Batch)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": { "raw": "{{base_url}}/turmas/{{turma_id}}/presenca", "host": ["{{base_url}}"], "path": ["turmas", "{{turma_id}}", "presenca"] },
+            "body": { "mode": "raw", "raw": "{\n  \"presencas\": [\n    { \"inscricaoId\": \"{{inscricao_id}}\", \"presente\": true },\n    { \"inscricaoId\": \"{{inscricao_id_2}}\", \"presente\": false }\n  ]\n}" },
+            "description": "Registra presença em batch para inscrições da turma. Acesso: PROFESSOR (da turma) ou ADMIN."
+          }
+        },
+        {
+          "name": "Listar Presenças da Turma",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": { "raw": "{{base_url}}/turmas/{{turma_id}}/presenca", "host": ["{{base_url}}"], "path": ["turmas", "{{turma_id}}", "presenca"] },
+            "description": "Lista inscritos da turma com status de presença. Acesso: PROFESSOR (da turma) ou ADMIN."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "description": "Visão geral e histórico de participação",
+      "item": [
+        {
+          "name": "Dashboard Admin",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": { "raw": "{{base_url}}/dashboard/admin", "host": ["{{base_url}}"], "path": ["dashboard", "admin"] },
+            "description": "Totais de eventos, turmas, inscrições e taxa de ocupação. Acesso: ADMIN."
+          }
+        },
+        {
+          "name": "Dashboard Aluno",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{access_token}}" }],
+            "url": { "raw": "{{base_url}}/dashboard/aluno", "host": ["{{base_url}}"], "path": ["dashboard", "aluno"] },
+            "description": "Histórico de participação do aluno autenticado. Acesso: ALUNO."
+          }
+        }
+      ]
+    }
+  ]
+}

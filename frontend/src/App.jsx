@@ -1,8 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
+import axios from 'axios'
+import { Navigate, NavLink, Route, Routes, useNavigate } from 'react-router-dom'
 import './App.css'
 
 const API_BASE = '/api'
 const SESSION_KEY = 'eventflow.session'
+const api = axios.create({ baseURL: API_BASE })
 
 const demoAccounts = [
   { role: 'Admin', email: 'admin@eventflow.dev', senha: 'Admin@1234' },
@@ -97,7 +100,6 @@ function normalizeDateTime(value) {
 
 function App() {
   const [session, setSession] = useState(readStoredSession)
-  const [activeView, setActiveView] = useState('eventos')
   const [loginForm, setLoginForm] = useState(emptyLogin)
   const [registerForm, setRegisterForm] = useState(emptyRegister)
   const [authMode, setAuthMode] = useState('login')
@@ -114,6 +116,7 @@ function App() {
   const [presenceRows, setPresenceRows] = useState([])
   const [loading, setLoading] = useState(false)
   const [notice, setNotice] = useState(null)
+  const navigate = useNavigate()
 
   const role = session?.user?.role
   const selectedEvent = useMemo(
@@ -123,40 +126,24 @@ function App() {
   const selectedEventTurmas = selectedEventId ? turmasByEvent[selectedEventId] || [] : []
 
   async function request(path, options = {}) {
-    const headers = { ...(options.headers || {}) }
-    if (options.body && !headers['Content-Type']) {
-      headers['Content-Type'] = 'application/json'
-    }
-    if (session?.accessToken && options.auth !== false) {
-      headers.Authorization = `Bearer ${session.accessToken}`
-    }
+    try {
+      const response = await api.request({
+        url: path,
+        method: options.method || 'GET',
+        data: options.body,
+        headers:
+          session?.accessToken && options.auth !== false
+            ? { Authorization: `Bearer ${session.accessToken}`, ...(options.headers || {}) }
+            : options.headers,
+      })
 
-    const response = await fetch(`${API_BASE}${path}`, {
-      ...options,
-      headers,
-      body:
-        options.body && typeof options.body !== 'string'
-          ? JSON.stringify(options.body)
-          : options.body,
-    })
-
-    if (response.status === 204) return null
-
-    const text = await response.text()
-    let data = null
-    if (text) {
-      try {
-        data = JSON.parse(text)
-      } catch {
-        data = text
+      return response.status === 204 ? null : response.data
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        throw new Error(buildErrorMessage(error.response?.data, error.response?.status))
       }
+      throw error
     }
-
-    if (!response.ok) {
-      throw new Error(buildErrorMessage(data, response.status))
-    }
-
-    return data
   }
 
   function showNotice(type, message) {
@@ -243,7 +230,7 @@ function App() {
     const nextSession = { ...data, user: decodeToken(data.accessToken) }
     localStorage.setItem(SESSION_KEY, JSON.stringify(data))
     setSession(nextSession)
-    setActiveView('eventos')
+    navigate('/eventos')
     setLoginForm(emptyLogin)
   }
 
@@ -271,7 +258,7 @@ function App() {
       }
       localStorage.removeItem(SESSION_KEY)
       setSession(null)
-      setActiveView('eventos')
+      navigate('/eventos')
       setMyInscriptions([])
       setStudentDashboard(null)
       setAdminDashboard(null)
@@ -395,35 +382,23 @@ function App() {
         </div>
 
         <nav className="nav-list">
-          <button
-            className={activeView === 'eventos' ? 'active' : ''}
-            onClick={() => setActiveView('eventos')}
-          >
+          <NavLink to="/eventos">
             Eventos
-          </button>
+          </NavLink>
           {role === 'ALUNO' && (
-            <button
-              className={activeView === 'aluno' ? 'active' : ''}
-              onClick={() => setActiveView('aluno')}
-            >
+            <NavLink to="/minhas-inscricoes">
               Minhas inscricoes
-            </button>
+            </NavLink>
           )}
           {canManageEvents && (
-            <button
-              className={activeView === 'admin' ? 'active' : ''}
-              onClick={() => setActiveView('admin')}
-            >
+            <NavLink to="/admin">
               Admin
-            </button>
+            </NavLink>
           )}
           {canManagePresence && (
-            <button
-              className={activeView === 'presenca' ? 'active' : ''}
-              onClick={() => setActiveView('presenca')}
-            >
+            <NavLink to="/presenca">
               Presenca
-            </button>
+            </NavLink>
           )}
         </nav>
 
@@ -469,66 +444,90 @@ function App() {
           </div>
         )}
 
-        {activeView === 'eventos' && (
-          <EventView
-            events={events}
-            eventStatus={eventStatus}
-            setEventStatus={setEventStatus}
-            selectedEvent={selectedEvent}
-            selectedEventId={selectedEventId}
-            setSelectedEventId={setSelectedEventId}
-            turmas={selectedEventTurmas}
-            loadTurmas={loadTurmas}
-            role={role}
-            canManageEvents={canManageEvents}
-            handleInscrever={handleInscrever}
-            handleCancelEvent={handleCancelEvent}
-            handleCancelTurma={handleCancelTurma}
-            setPresenceTurmaId={setPresenceTurmaId}
-            setActiveView={setActiveView}
-            loading={loading}
+        <Routes>
+          <Route path="/" element={<Navigate to="/eventos" replace />} />
+          <Route
+            path="/eventos"
+            element={
+              <EventView
+                events={events}
+                eventStatus={eventStatus}
+                setEventStatus={setEventStatus}
+                selectedEvent={selectedEvent}
+                selectedEventId={selectedEventId}
+                setSelectedEventId={setSelectedEventId}
+                turmas={selectedEventTurmas}
+                loadTurmas={loadTurmas}
+                role={role}
+                canManageEvents={canManageEvents}
+                handleInscrever={handleInscrever}
+                handleCancelEvent={handleCancelEvent}
+                handleCancelTurma={handleCancelTurma}
+                setPresenceTurmaId={setPresenceTurmaId}
+                loading={loading}
+              />
+            }
           />
-        )}
-
-        {activeView === 'aluno' && role === 'ALUNO' && (
-          <StudentView
-            dashboard={studentDashboard}
-            inscriptions={myInscriptions}
-            handleCancelInscription={handleCancelInscription}
-            refresh={loadMyArea}
-            loading={loading}
+          <Route
+            path="/minhas-inscricoes"
+            element={
+              role === 'ALUNO' ? (
+                <StudentView
+                  dashboard={studentDashboard}
+                  inscriptions={myInscriptions}
+                  handleCancelInscription={handleCancelInscription}
+                  refresh={loadMyArea}
+                  loading={loading}
+                />
+              ) : (
+                <Navigate to="/eventos" replace />
+              )
+            }
           />
-        )}
-
-        {activeView === 'admin' && canManageEvents && (
-          <AdminView
-            dashboard={adminDashboard}
-            events={events}
-            eventForm={eventForm}
-            setEventForm={setEventForm}
-            turmaForm={turmaForm}
-            setTurmaForm={setTurmaForm}
-            handleCreateEvent={handleCreateEvent}
-            handleCreateTurma={handleCreateTurma}
-            refreshDashboard={loadAdminDashboard}
-            loading={loading}
+          <Route
+            path="/admin"
+            element={
+              canManageEvents ? (
+                <AdminView
+                  dashboard={adminDashboard}
+                  events={events}
+                  eventForm={eventForm}
+                  setEventForm={setEventForm}
+                  turmaForm={turmaForm}
+                  setTurmaForm={setTurmaForm}
+                  handleCreateEvent={handleCreateEvent}
+                  handleCreateTurma={handleCreateTurma}
+                  refreshDashboard={loadAdminDashboard}
+                  loading={loading}
+                />
+              ) : (
+                <Navigate to="/eventos" replace />
+              )
+            }
           />
-        )}
-
-        {activeView === 'presenca' && canManagePresence && (
-          <PresenceView
-            events={events}
-            turmasByEvent={turmasByEvent}
-            loadTurmas={loadTurmas}
-            presenceTurmaId={presenceTurmaId}
-            setPresenceTurmaId={setPresenceTurmaId}
-            presenceRows={presenceRows}
-            updatePresence={updatePresence}
-            loadPresence={loadPresence}
-            savePresence={savePresence}
-            loading={loading}
+          <Route
+            path="/presenca"
+            element={
+              canManagePresence ? (
+                <PresenceView
+                  events={events}
+                  turmasByEvent={turmasByEvent}
+                  loadTurmas={loadTurmas}
+                  presenceTurmaId={presenceTurmaId}
+                  setPresenceTurmaId={setPresenceTurmaId}
+                  presenceRows={presenceRows}
+                  updatePresence={updatePresence}
+                  loadPresence={loadPresence}
+                  savePresence={savePresence}
+                  loading={loading}
+                />
+              ) : (
+                <Navigate to="/eventos" replace />
+              )
+            }
           />
-        )}
+          <Route path="*" element={<Navigate to="/eventos" replace />} />
+        </Routes>
       </main>
     </div>
   )
@@ -651,9 +650,9 @@ function EventView({
   handleCancelEvent,
   handleCancelTurma,
   setPresenceTurmaId,
-  setActiveView,
   loading,
 }) {
+  const navigate = useNavigate()
   return (
     <section className="workspace two-columns">
       <div className="panel">
@@ -755,7 +754,7 @@ function EventView({
                         className="secondary"
                         onClick={() => {
                           setPresenceTurmaId(turma.id)
-                          setActiveView('presenca')
+                          navigate('/presenca')
                         }}
                       >
                         Presenca

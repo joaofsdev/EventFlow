@@ -47,6 +47,7 @@ public class PresencaService {
         }
     }
 
+    @Transactional(readOnly = true)
     public List<PresencaResponse> listar(UUID turmaId, UUID usuarioId) {
         Turma turma = turmaRepository.findById(turmaId)
                 .orElseThrow(() -> new ResourceNotFoundException("Turma não encontrada: " + turmaId));

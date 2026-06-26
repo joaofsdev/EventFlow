@@ -75,6 +75,7 @@ public class InscricaoService {
         }
     }
 
+    @Transactional(readOnly = true)
     public List<InscricaoResponse> listarMinhas(UUID alunoId) {
         return inscricaoRepository.findByAlunoId(alunoId).stream()
                 .map(this::toResponse)

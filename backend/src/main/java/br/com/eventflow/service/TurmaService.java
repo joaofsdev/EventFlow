@@ -44,6 +44,7 @@ public class TurmaService {
         return toResponse(turma);
     }
 
+    @Transactional(readOnly = true)
     public List<TurmaResponse> listarPorEvento(UUID eventoId) {
         if (!eventoRepository.existsById(eventoId)) {
             throw new ResourceNotFoundException("Evento não encontrado: " + eventoId);

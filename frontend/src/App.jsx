@@ -114,6 +114,7 @@ function App() {
   const [turmaForm, setTurmaForm] = useState(emptyTurma)
   const [presenceTurmaId, setPresenceTurmaId] = useState('')
   const [presenceRows, setPresenceRows] = useState([])
+  const [professors, setProfessors] = useState([])
   const [loading, setLoading] = useState(false)
   const [notice, setNotice] = useState(null)
   const navigate = useNavigate()
@@ -126,19 +127,43 @@ function App() {
   const selectedEventTurmas = selectedEventId ? turmasByEvent[selectedEventId] || [] : []
 
   async function request(path, options = {}) {
+    const buildHeaders = (token) =>
+      token && options.auth !== false
+        ? { Authorization: `Bearer ${token}`, ...(options.headers || {}) }
+        : options.headers
+
     try {
       const response = await api.request({
         url: path,
         method: options.method || 'GET',
         data: options.body,
-        headers:
-          session?.accessToken && options.auth !== false
-            ? { Authorization: `Bearer ${session.accessToken}`, ...(options.headers || {}) }
-            : options.headers,
+        headers: buildHeaders(session?.accessToken),
       })
-
       return response.status === 204 ? null : response.data
     } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 401 && !options._retry) {
+        const stored = readStoredSession()
+        if (stored?.refreshToken) {
+          try {
+            const { data } = await api.post('/auth/refresh', { refreshToken: stored.refreshToken })
+            const newSession = { ...data, user: decodeToken(data.accessToken) }
+            localStorage.setItem(SESSION_KEY, JSON.stringify(data))
+            setSession(newSession)
+            const retry = await api.request({
+              url: path,
+              method: options.method || 'GET',
+              data: options.body,
+              headers: buildHeaders(data.accessToken),
+            })
+            return retry.status === 204 ? null : retry.data
+          } catch {
+            localStorage.removeItem(SESSION_KEY)
+            setSession(null)
+            navigate('/eventos')
+            return undefined
+          }
+        }
+      }
       if (axios.isAxiosError(error)) {
         throw new Error(buildErrorMessage(error.response?.data, error.response?.status))
       }
@@ -201,6 +226,12 @@ function App() {
     setAdminDashboard(data)
   }
 
+  async function loadProfessors() {
+    if (role !== 'ADMIN') return
+    const data = await request('/usuarios/professores')
+    if (data) setProfessors(data)
+  }
+
   useEffect(() => {
     withLoading(loadEvents)
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -216,7 +247,10 @@ function App() {
   useEffect(() => {
     if (!session) return
     if (role === 'ALUNO') withLoading(loadMyArea)
-    if (role === 'ADMIN') withLoading(loadAdminDashboard)
+    if (role === 'ADMIN') {
+      withLoading(loadAdminDashboard)
+      withLoading(loadProfessors)
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session?.accessToken])
 
@@ -240,7 +274,7 @@ function App() {
       () => request('/auth/register', { method: 'POST', body: registerForm, auth: false }),
       'Cadastro criado. Agora faca login.',
     )
-    if (created === null) {
+    if (created !== undefined) {
       setAuthMode('login')
       setLoginForm({ email: registerForm.email, senha: '' })
       setRegisterForm(emptyRegister)
@@ -353,7 +387,7 @@ function App() {
       () => request(`/turmas/${presenceTurmaId}/presenca`, { method: 'PUT', body: payload }),
       'Presenca salva.',
     )
-    if (done === null) await loadPresence(presenceTurmaId)
+    if (done !== undefined) await loadPresence(presenceTurmaId)
   }
 
   function fillDemoAccount(account) {
@@ -491,6 +525,7 @@ function App() {
                 <AdminView
                   dashboard={adminDashboard}
                   events={events}
+                  professors={professors}
                   eventForm={eventForm}
                   setEventForm={setEventForm}
                   turmaForm={turmaForm}
@@ -838,6 +873,7 @@ function StudentView({ dashboard, inscriptions, handleCancelInscription, refresh
 function AdminView({
   dashboard,
   events,
+  professors,
   eventForm,
   setEventForm,
   turmaForm,
@@ -994,12 +1030,17 @@ function AdminView({
             />
           </label>
           <label>
-            Professor ID
-            <input
+            Professor
+            <select
               value={turmaForm.professorId}
               onChange={(event) => setTurmaForm({ ...turmaForm, professorId: event.target.value })}
               required
-            />
+            >
+              <option value="">Selecione</option>
+              {professors.map((p) => (
+                <option value={p.id} key={p.id}>{p.nome}</option>
+              ))}
+            </select>
           </label>
         </div>
         <button type="submit" disabled={loading}>

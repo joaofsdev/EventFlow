@@ -11,6 +11,7 @@ import br.com.eventflow.repository.TurmaRepository;
 import br.com.eventflow.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -48,6 +49,7 @@ public class DashboardService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
     public DashboardAlunoResponse dashboardAluno(UUID alunoId) {
         List<Inscricao> inscricoes = inscricaoRepository.findByAlunoId(alunoId);
 

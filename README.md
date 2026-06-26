@@ -7,6 +7,7 @@
     <img alt="Spring Boot" src="https://img.shields.io/badge/Spring_Boot-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white"/>
     <img alt="React" src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB"/>
     <img alt="PostgreSQL" src="https://img.shields.io/badge/PostgreSQL-336791?style=for-the-badge&logo=postgresql&logoColor=white"/>
+  </p>
 
   <p>
     <img alt="Status" src="https://img.shields.io/badge/status-em%20desenvolvimento-yellow?style=flat-square"/>
@@ -40,48 +41,48 @@ O **EventFlow** é uma plataforma web para gestão de eventos educacionais — m
 <details>
 <summary><strong>📅 Gestão de Eventos e Turmas</strong></summary>
 
-- [X] Cadastro de eventos com título, descrição, data, local e carga horária
-- [X] Criação de turmas vinculadas a um evento, com limite de vagas
-- [X] Controle de status: aberta, encerrada ou cancelada
-- [] Visualização pública da grade de eventos disponíveis
+- [x] Cadastro de eventos com título, descrição, data, local e carga horária
+- [x] Criação de turmas vinculadas a um evento, com limite de vagas
+- [x] Controle de status: aberta, encerrada ou cancelada
+- [x] Visualização pública da grade de eventos disponíveis
 
 </details>
 
 <details>
 <summary><strong>📝 Inscrições</strong></summary>
 
-- [X] Inscrição de alunos com validação de vagas disponíveis
-- [X] Cancelamento dentro do prazo configurado
-- [X] Prevenção de inscrições duplicadas em turmas conflitantes
-- [X] Lista de espera automática quando as vagas esgotam
+- [x] Inscrição de alunos com validação de vagas disponíveis
+- [x] Cancelamento dentro do prazo configurado
+- [x] Prevenção de inscrições duplicadas em turmas conflitantes
+- [x] Lista de espera automática quando as vagas esgotam
 
 </details>
 
 <details>
 <summary><strong>✅ Controle de Presença</strong></summary>
 
-- [X] Registro de presença por aula ou sessão
-- [X] Edição de registros pelo professor responsável
-- [ ] Cálculo automático de frequência por turma
-- [ ] Exportação de lista de presença
+- [x] Registro de presença por aula ou sessão
+- [x] Edição de registros pelo professor responsável
+- [x] Cálculo automático de frequência por turma
+- [x] Exportação de lista de presença
 
 </details>
 
 <details>
 <summary><strong>📊 Relatórios e Dashboards</strong></summary>
 
-- [X] Dashboard com visão geral de eventos e inscrições (Admin)
-- [ ] Relatório de presença por turma e por aluno
-- [X] Histórico de participação acessível ao próprio aluno
+- [x] Dashboard com visão geral de eventos e inscrições (Admin)
+- [x] Relatório de presença por turma e por aluno
+- [x] Histórico de participação acessível ao próprio aluno
 
 </details>
 
 <details>
 <summary><strong>🔒 Autenticação e Segurança</strong></summary>
 
-- [X] Cadastro e login com autenticação via JWT
-- [X] Controle de acesso por perfil (Admin, Professor, Aluno)
-- [ ] Proteção de rotas no frontend e no backend
+- [x] Cadastro e login com autenticação via JWT
+- [x] Controle de acesso por perfil (Admin, Professor, Aluno)
+- [x] Proteção de rotas no frontend e no backend
 
 </details>
 
@@ -120,14 +121,16 @@ O **EventFlow** é uma plataforma web para gestão de eventos educacionais — m
 
 ### Backend
 
+Antes de executar, configure a conexão com o banco de dados no arquivo `src/main/resources/application.properties`:
+
+```properties
+spring.datasource.url=jdbc:postgresql://localhost:5432/eventflow
+spring.datasource.username=seu_usuario
+spring.datasource.password=sua_senha
+```
+
 ```bash
 cd backend
-
-# Configure o banco de dados em src/main/resources/application.properties
-# spring.datasource.url=jdbc:postgresql://localhost:5432/eventflow
-# spring.datasource.username=seu_usuario
-# spring.datasource.password=sua_senha
-
 ./mvnw spring-boot:run
 ```
 
@@ -137,7 +140,6 @@ cd backend
 
 ```bash
 cd frontend
-
 npm install
 npm run dev
 ```

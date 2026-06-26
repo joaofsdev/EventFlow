@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-@Profile("dev")
+@Profile({"dev", "prod"})
 @RequiredArgsConstructor
 public class DataSeeder implements CommandLineRunner {
 

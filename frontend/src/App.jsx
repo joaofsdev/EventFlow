@@ -3,7 +3,7 @@ import axios from 'axios'
 import { Navigate, NavLink, Route, Routes, useNavigate } from 'react-router-dom'
 import './App.css'
 
-const API_BASE = '/api'
+const API_BASE = import.meta.env.VITE_API_URL || '/api'
 const SESSION_KEY = 'eventflow.session'
 const api = axios.create({ baseURL: API_BASE })
 

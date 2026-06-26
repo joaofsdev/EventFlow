@@ -1,11 +1,11 @@
 # Stage 1: Build
 FROM eclipse-temurin:21-jdk-alpine AS build
+RUN apk add --no-cache maven
 WORKDIR /app
-COPY .mvn/ .mvn/
-COPY mvnw pom.xml ./
-RUN chmod +x mvnw && ./mvnw dependency:go-offline -B
+COPY pom.xml ./
+RUN mvn dependency:go-offline -B
 COPY src/ src/
-RUN ./mvnw clean package -DskipTests -B
+RUN mvn clean package -DskipTests -B
 
 # Stage 2: Runtime
 FROM eclipse-temurin:21-jre-alpine
